@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0d0d0d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Löparskor">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%230d0d0d'/%3E%3Cpath d='M14 44l10-18 6 3-10 18zM28 44l12-24 6 3-12 24zM42 44l8-14 6 3-8 14z' fill='%23fff'/%3E%3C/svg%3E">
+<title>Nya löparskor – adidas.se</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:light dark;--bg:light-dark(#fff,#0d0d0d);--ink:light-dark(#0d0d0d,#f2f2f2);
+--mut:light-dark(#6b6b6b,#9a9a9a);--card:light-dark(#eceeef,#1b1b1b);--line:light-dark(#dedede,#2a2a2a);--acc:#0050ff}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Archivo,system-ui,sans-serif}
+header,section{padding:28px max(4vw,16px);max-width:1500px;margin:auto}
+header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+h1{font-size:clamp(30px,5vw,52px);line-height:1.05;margin:0 0 8px;font-weight:800;letter-spacing:-.02em}
+h2{font-size:24px;margin:0 0 14px;font-weight:800}
+h3{font-size:16px;margin:22px 0 10px;color:var(--mut);font-weight:600}
+.meta{color:var(--mut);font-size:15px}
+.meta b{color:var(--ink)}
+.note{background:var(--card);padding:14px 16px;border-left:4px solid var(--acc);margin:12px 0 0}
+.err{border-left-color:#e0281c}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,190px),1fr));gap:14px}
+.big .grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr))}
+a.card{display:block;color:inherit;text-decoration:none;background:var(--card);position:relative}
+a.card:hover .ph img{transform:scale(1.04)}
+a.card:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.ph{aspect-ratio:1;overflow:hidden;background:#eceeef}
+.ph img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s}
+.tx{padding:10px 12px 12px}
+.nm{font-weight:600;font-size:15px;line-height:1.3}
+.sub{color:var(--mut);font-size:13px;margin-top:3px}
+.ny{position:absolute;top:8px;left:8px;background:var(--acc);color:#fff;font-size:13px;font-weight:800;padding:3px 8px}
+.empty{color:var(--mut);padding:18px 0}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+input{font:inherit;font-size:16px;padding:10px 12px;border:2px solid var(--ink);background:var(--bg);color:var(--ink);min-height:44px;width:min(100%,340px)}
+input:focus{outline:3px solid var(--acc);outline-offset:1px}
+details summary{cursor:pointer;font-size:24px;font-weight:800;margin-bottom:14px;min-height:44px}
+@media(prefers-reduced-motion:reduce){.ph img{transition:none}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Nya löparskor</h1>
+  <div class="meta" id="meta"></div>
+  <div id="notes"></div>
+</header>
+<section class="big"><h2 id="todayH">Nytt sedan förra körningen</h2><div id="today"></div></section>
+<section><h2>Nytt senaste 30 dagarna</h2><div id="recent"></div></section>
+<section>
+  <details id="allD"><summary id="allS">Hela sortimentet</summary>
+    <div class="bar"><input id="q" type="search" placeholder="Sök modell, färg eller artikelnummer" aria-label="Sök"></div>
+    <div id="all"></div>
+  </details>
+</section>
+<script>
+{
+const S={"items": {}, "runs": [], "last_run": null, "error": "requests: HTTP 403, 3401 tecken | playwright-headless: inga produkter hittades på första sidan | playwright-synlig: inga produkter hittades på första sidan", "error_time": "2026-11-18 07:44"};
+const IMG="https://assets.adidas.com/images/w_600,h_600,f_auto,q_auto,fl_lossy,c_fill,g_auto/",MON=["jan","feb","mar","apr","maj","jun","jul","aug","sep","okt","nov","dec"];
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fd=d=>{const [y,m,dd]=d.split("-");return +dd+" "+MON[m-1]+" "+y};
+const items=Object.values(S.items);
+const lastDay=(S.last_run||"").slice(0,10);
+const isNew=it=>!it.baseline;
+const card=(it,badge)=>`<a class="card" href="${esc(it.url)}" target="_blank" rel="noopener">
+ ${badge?`<span class="ny">${esc(badge)}</span>`:""}
+ <div class="ph"><img loading="lazy" src="${IMG+esc(it.image)}" alt="${esc(it.name)}" onerror="this.style.opacity=0"></div>
+ <div class="tx"><div class="nm">${esc(it.name)}</div><div class="sub">${esc([it.color,it.sku].filter(Boolean).join(" · "))}${it.active?"":" · ej kvar på sajten"}</div></div></a>`;
+const grid=arr=>`<div class="grid">${arr.join("")}</div>`;
+const active=items.filter(i=>i.active).sort((a,b)=>a.rank-b.rank);
+const today=items.filter(i=>isNew(i)&&i.first_seen===lastDay).sort((a,b)=>a.rank-b.rank);
+const cut=new Date(Date.now()-30*864e5).toISOString().slice(0,10);
+const recent=items.filter(i=>isNew(i)&&i.first_seen>=cut&&i.first_seen!==lastDay);
+const run=(S.runs||[]).at(-1)||{};
+document.getElementById("meta").innerHTML=
+ `Herr · löpning · <a href="https://www.adidas.se/herr-lopning-skor" target="_blank" rel="noopener" style="color:inherit">adidas.se</a> — uppdaterad <b>${esc(S.last_run||"–")}</b> · <b>${active.length}</b> skor i sortimentet · <b>${today.length}</b> nya idag`;
+const notes=[];
+if(run.first_run)notes.push(`<div class="note">Första körningen: alla ${active.length} skor är sparade som utgångsläge. Från nästa körning visas nya skor överst.</div>`);
+if(S.error)notes.push(`<div class="note err">Senaste hämtningen misslyckades (${esc(S.error_time)}): ${esc(S.error)}. Visar senast sparade data.</div>`);
+document.getElementById("notes").innerHTML=notes.join("");
+document.getElementById("today").innerHTML=today.length?grid(today.map(i=>card(i,"NY"))):`<div class="empty">Inga nya skor sedan förra körningen.</div>`;
+const byDay={};recent.forEach(i=>(byDay[i.first_seen]??=[]).push(i));
+const days=Object.keys(byDay).sort().reverse();
+document.getElementById("recent").innerHTML=days.length?days.map(d=>`<h3>${fd(d)} · ${byDay[d].length} st</h3>`+grid(byDay[d].map(i=>card(i,"")))).join(""):`<div class="empty">Inga tidigare nyheter än.</div>`;
+document.getElementById("allS").textContent=`Hela sortimentet (${active.length})`;
+const all=document.getElementById("all"),q=document.getElementById("q");
+const draw=()=>{const t=q.value.trim().toLowerCase();
+ const list=active.filter(i=>!t||(i.name+" "+i.color+" "+i.sku).toLowerCase().includes(t));
+ all.innerHTML=list.length?grid(list.map(i=>card(i,isNew(i)&&i.first_seen>=cut?"NY":""))):`<div class="empty">Inget matchar.</div>`};
+q.addEventListener("input",draw);
+document.getElementById("allD").addEventListener("toggle",draw,{once:true});
+if(!today.length&&!days.length)document.getElementById("allD").open=true;
+}
+</script>
+</body>
+</html>

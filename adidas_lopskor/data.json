@@ -1,0 +1,7 @@
+{
+ "items": {},
+ "runs": [],
+ "last_run": null,
+ "error": "requests: HTTP 403, 3401 tecken | playwright-headless: inga produkter hittades på första sidan | playwright-synlig: inga produkter hittades på första sidan",
+ "error_time": "2026-11-18 07:44"
+}

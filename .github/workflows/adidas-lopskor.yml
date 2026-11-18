@@ -1,0 +1,61 @@
+name: Adidas löparskor
+
+on:
+  schedule:
+    - cron: "0 5 * * *"      # 05:00 UTC = 06:00 vintertid / 07:00 sommartid i Sverige
+  workflow_dispatch:          # kör manuellt via Actions-fliken -> Run workflow
+
+permissions:
+  contents: write             # för att spara data.json i repot
+  pages: write
+  id-token: write
+
+concurrency:
+  group: adidas-lopskor
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    env:
+      TZ: Europe/Stockholm
+    steps:
+      - name: Hämta repot
+        uses: actions/checkout@v4
+
+      - name: Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Installera beroenden
+        run: |
+          pip install requests playwright
+          python -m playwright install --with-deps chromium
+
+      - name: Hämta skor och bygg sidan
+        continue-on-error: true   # sidan publiceras ändå, med felruta och senast sparade data
+        run: xvfb-run -a python adidas_lopskor.py
+
+      - name: Spara data i repot
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898273+github-actions[bot]@users.noreply.github.com"
+          git add adidas_lopskor
+          git diff --cached --quiet || git commit -m "Löparskor $(date +'%Y-%m-%d')"
+          git push
+
+      - name: Förbered Pages
+        uses: actions/configure-pages@v5
+
+      - name: Ladda upp sidan
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: adidas_lopskor
+
+      - name: Publicera
+        id: deploy
+        uses: actions/deploy-pages@v4

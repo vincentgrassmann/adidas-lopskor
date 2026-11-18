@@ -12,10 +12,13 @@ Körning:
   python adidas_lopskor.py --install    kör automatiskt varje dag (standard 07:00, macOS/Windows)
   python adidas_lopskor.py --install --time 06:30
   python adidas_lopskor.py --uninstall  ta bort schemat
+  python adidas_lopskor.py --push       hämta + bygg + skicka till GitHub (git commit/push)
+  python adidas_lopskor.py --install --push   daglig körning som även skickar till GitHub
 
-GitHub: lägg .github/workflows/adidas-lopskor.yml i samma repo – då körs skriptet
-        varje morgon i GitHub Actions och sidan publiceras med GitHub Pages
-        (https://<användarnamn>.github.io/<repo>/), som du kan öppna i mobilen.
+GitHub: adidas.se blockerar GitHubs servrar (HTTP 403). Därför hämtar din egen dator
+        (Mac Mini) skorna och skickar resultatet till repot med --push.
+        .github/workflows/adidas-lopskor.yml publicerar sedan sidan med GitHub
+        Pages (https://<användarnamn>.github.io/<repo>/) som du öppnar i mobilen.
 
 Krav:   pip install requests
 Valfritt (används bara om adidas blockerar vanliga anrop):
@@ -428,14 +431,47 @@ def build_page(state):
     PAGE.write_text(page, encoding="utf-8")
 
 
+# ------------------------------------------------------------------ GitHub
+def git_push():
+    def g(*a):
+        return subprocess.run(["git", *a], cwd=HERE, capture_output=True, text=True)
+
+    if g("rev-parse", "--is-inside-work-tree").returncode != 0:
+        log(f"--push: {HERE} är inte ett git-repo – klona repot och lägg skriptet där")
+        return False
+    ident = []
+    if not g("config", "user.email").stdout.strip():
+        ident = ["-c", "user.name=adidas-lopskor", "-c", "user.email=adidas-lopskor@localhost"]
+    g("add", OUT.name)
+    if g("diff", "--cached", "--quiet").returncode == 0:
+        log("--push: inga ändringar att skicka")
+        return True
+    r = g(*ident, "commit", "-m", f"Löparskor {dt.datetime.now():%Y-%m-%d %H:%M}")
+    if r.returncode != 0:
+        log(f"--push: commit misslyckades: {(r.stderr or r.stdout).strip()}")
+        return False
+    r = g("pull", "--rebase", "--autostash")
+    if r.returncode != 0:
+        log(f"--push: pull misslyckades: {(r.stderr or r.stdout).strip()}")
+        g("rebase", "--abort")
+        return False
+    r = g("push")
+    if r.returncode != 0:
+        log(f"--push: push misslyckades: {(r.stderr or r.stdout).strip()}")
+        return False
+    log("--push: skickat till GitHub")
+    return True
+
+
 # ------------------------------------------------------------------ schemaläggning
 def xml_esc(s):
     return html.escape(str(s), quote=True)
 
 
-def install(at):
+def install(at, push=False):
     hh, mm = (int(x) for x in at.split(":"))
     script = Path(__file__).resolve()
+    extra = ["--push"] if push else []
     OUT.mkdir(parents=True, exist_ok=True)
     system = platform.system()
     if system == "Darwin":
@@ -447,7 +483,9 @@ def install(at):
 <dict>
   <key>Label</key><string>{TASK_LABEL}</string>
   <key>ProgramArguments</key>
-  <array><string>{xml_esc(sys.executable)}</string><string>{xml_esc(script)}</string></array>
+  <array><string>{xml_esc(sys.executable)}</string><string>{xml_esc(script)}</string>{"".join(f"<string>{e}</string>" for e in extra)}</array>
+  <key>EnvironmentVariables</key>
+  <dict><key>PATH</key><string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string></dict>
   <key>WorkingDirectory</key><string>{xml_esc(HERE)}</string>
   <key>StartCalendarInterval</key>
   <dict><key>Hour</key><integer>{hh}</integer><key>Minute</key><integer>{mm}</integer></dict>
@@ -467,7 +505,7 @@ def install(at):
         if pyw.exists():
             exe = pyw
         q = lambda s: str(s).replace("'", "''")
-        ps = (f"$a=New-ScheduledTaskAction -Execute '{q(exe)}' -Argument '\"{q(script)}\"' "
+        ps = (f"$a=New-ScheduledTaskAction -Execute '{q(exe)}' -Argument '\"{q(script)}\"{' --push' if push else ''}' "
               f"-WorkingDirectory '{q(HERE)}';"
               f"$t=New-ScheduledTaskTrigger -Daily -At '{hh:02d}:{mm:02d}';"
               f"$s=New-ScheduledTaskSettingsSet -StartWhenAvailable -AllowStartIfOnBatteries;"
@@ -478,7 +516,7 @@ def install(at):
         print(f"Klart. Körs varje dag {at} via Task Scheduler (\"{WIN_TASK}\").")
     else:
         print("Lägg till detta i crontab -e:")
-        print(f"{mm} {hh} * * * cd '{HERE}' && '{sys.executable}' '{script}'")
+        print(f"{mm} {hh} * * * cd '{HERE}' && '{sys.executable}' '{script}'{' --push' if push else ''}")
 
 
 def uninstall():
@@ -504,12 +542,13 @@ def main():
     ap.add_argument("--install", action="store_true", help="schemalägg daglig körning")
     ap.add_argument("--uninstall", action="store_true", help="ta bort schemat")
     ap.add_argument("--time", default="07:00", help="klockslag för --install (HH:MM)")
+    ap.add_argument("--push", action="store_true", help="skicka resultatet till GitHub (git commit + push)")
     args = ap.parse_args()
 
     if args.install:
         if not re.fullmatch(r"\d{1,2}:\d{2}", args.time):
             sys.exit("--time ska vara HH:MM")
-        install(args.time)
+        install(args.time, args.push)
         return
     if args.uninstall:
         uninstall()
@@ -535,6 +574,8 @@ def main():
     save_state(state)
     build_page(state)
     log(f"Sidan sparad: {PAGE}")
+    if args.push and not git_push():
+        code = 1
     if args.open:
         webbrowser.open(PAGE.as_uri())
     sys.exit(code)

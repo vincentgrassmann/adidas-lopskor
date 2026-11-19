@@ -20,9 +20,11 @@ GitHub: adidas.se blockerar GitHubs servrar (HTTP 403). Därför hämtar din ege
         .github/workflows/adidas-lopskor.yml publicerar sedan sidan med GitHub
         Pages (https://<användarnamn>.github.io/<repo>/) som du öppnar i mobilen.
 
-Krav:   pip install requests
-Valfritt (används bara om adidas blockerar vanliga anrop):
+Krav:   pip install requests curl_cffi
+        (curl_cffi får anropet att se ut som Chrome – adidas blockerar annars Python med HTTP 403)
+Valfritt (används bara om även curl_cffi blockeras):
         pip install playwright && python -m playwright install chromium
+        (finns Google Chrome installerat används det i första hand)
 """
 import argparse
 import datetime as dt
@@ -123,12 +125,51 @@ class RequestsFetcher:
         self.s.close()
 
 
+class CurlCffiFetcher:
+    """Härmar Chromes TLS/HTTP2-fingeravtryck, vilket adidas Akamai-skydd släpper igenom."""
+    name = "curl_cffi (Chrome-imitation)"
+
+    def __init__(self):
+        from curl_cffi import requests as creq
+        self.s = creq.Session(impersonate="chrome")
+        self.s.headers.update({"Accept-Language": HEADERS["Accept-Language"]})
+
+    def get(self, url):
+        last = None
+        for attempt in range(3):
+            try:
+                if attempt == 0 and not getattr(self, "_warm", False):
+                    self._warm = True
+                    self.s.get(BASE + "/", timeout=30)      # hämta cookies som en vanlig besökare
+                    time.sleep(1.5)
+                r = self.s.get(url, timeout=30)
+                if r.status_code == 200 and len(r.text) > 5000:
+                    return r.text
+                last = f"HTTP {r.status_code}, {len(r.text)} tecken"
+            except Exception as e:
+                last = str(e)
+            time.sleep(4 * (attempt + 1))
+        raise Blocked(last)
+
+    def close(self):
+        try:
+            self.s.close()
+        except Exception:
+            pass
+
+
 class PlaywrightFetcher:
-    def __init__(self, headless=True):
+    def __init__(self, headless=True, channel=None):
         from playwright.sync_api import sync_playwright
-        self.name = "playwright (" + ("headless" if headless else "synligt fönster") + ")"
+        self.name = ("playwright " + (channel or "chromium") + " ("
+                     + ("headless" if headless else "synligt fönster") + ")")
         self.pw = sync_playwright().start()
-        self.browser = self.pw.chromium.launch(headless=headless)
+        try:
+            self.browser = self.pw.chromium.launch(headless=headless, channel=channel) if channel \
+                else self.pw.chromium.launch(headless=headless)
+        except Exception:
+            self.pw.stop()
+            raise
         self.ctx = self.browser.new_context(locale="sv-SE", user_agent=HEADERS["User-Agent"],
                                             viewport={"width": 1400, "height": 1000})
         self.page = self.ctx.new_page()
@@ -244,7 +285,9 @@ def crawl(fetcher):
 
 
 def fetch_all():
-    attempts = [("requests", lambda: RequestsFetcher()),
+    attempts = [("curl_cffi", lambda: CurlCffiFetcher()),
+                ("requests", lambda: RequestsFetcher()),
+                ("playwright-chrome", lambda: PlaywrightFetcher(headless=False, channel="chrome")),
                 ("playwright-headless", lambda: PlaywrightFetcher(headless=True)),
                 ("playwright-synlig", lambda: PlaywrightFetcher(headless=False))]
     errors = []

@@ -30,3 +30,22 @@
 2026-11-19 06:10:44    misslyckades: inga produkter hittades på första sidan
 2026-11-19 06:10:44  Hämtningen misslyckades: curl_cffi: HTTP 403, 3016 tecken | requests: HTTP 403, 3400 tecken | playwright-chrome: inga produkter hittades på första sidan | playwright-headless: inga produkter hittades på första sidan | playwright-synlig: inga produkter hittades på första sidan
 2026-11-19 06:10:44  Sidan sparad: /Users/applekonto/adidas-lopskor/adidas_lopskor/index.html
+2026-11-19 06:10:47  --push: skickat till GitHub
+2026-11-19 06:11:17  Hämtar med curl_cffi (Chrome-imitation) …
+2026-11-19 06:11:45    misslyckades: HTTP 403, 3016 tecken
+2026-11-19 06:11:45  Hämtar med requests …
+2026-11-19 06:12:03    misslyckades: HTTP 403, 3400 tecken
+2026-11-19 06:12:05  Hämtar med playwright chrome (synligt fönster) …
+2026-11-19 06:12:11    misslyckades: inga produkter hittades på första sidan
+2026-11-19 06:12:12  Hämtar med playwright chromium (headless) …
+2026-11-19 06:13:12    misslyckades: Page.goto: Timeout 60000ms exceeded.
+Call log:
+  - navigating to "https://www.adidas.se/herr-lopning-skor", waiting until "domcontentloaded"
+
+2026-11-19 06:13:14  Hämtar med playwright chromium (synligt fönster) …
+2026-11-19 06:13:21    misslyckades: inga produkter hittades på första sidan
+2026-11-19 06:13:21  Hämtningen misslyckades: curl_cffi: HTTP 403, 3016 tecken | requests: HTTP 403, 3400 tecken | playwright-chrome: inga produkter hittades på första sidan | playwright-headless: Page.goto: Timeout 60000ms exceeded.
+Call log:
+  - navigating to "https://www.adidas.se/herr-lopning-skor", waiting until "domcontentloaded"
+ | playwright-synlig: inga produkter hittades på första sidan
+2026-11-19 06:13:21  Sidan sparad: /Users/applekonto/adidas-lopskor/adidas_lopskor/index.html

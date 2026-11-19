@@ -6,3 +6,7 @@
 2026-11-18 07:44:38    misslyckades: inga produkter hittades på första sidan
 2026-11-18 07:44:38  Hämtningen misslyckades: requests: HTTP 403, 3401 tecken | playwright-headless: inga produkter hittades på första sidan | playwright-synlig: inga produkter hittades på första sidan
 2026-11-18 07:44:38  Sidan sparad: /home/runner/work/adidas-lopskor/adidas-lopskor/adidas_lopskor/index.html
+2026-11-19 06:03:29  Hämtar med requests …
+2026-11-19 06:03:47    misslyckades: HTTP 403, 3401 tecken
+2026-11-19 06:03:47  Hämtningen misslyckades: requests: HTTP 403, 3401 tecken | playwright-headless: modul saknas (playwright) | playwright-synlig: modul saknas (playwright)
+2026-11-19 06:03:47  Sidan sparad: /Users/applekonto/adidas-lopskor/adidas_lopskor/index.html

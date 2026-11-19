@@ -49,3 +49,20 @@ Call log:
   - navigating to "https://www.adidas.se/herr-lopning-skor", waiting until "domcontentloaded"
  | playwright-synlig: inga produkter hittades på första sidan
 2026-11-19 06:13:21  Sidan sparad: /Users/applekonto/adidas-lopskor/adidas_lopskor/index.html
+2026-11-19 06:13:24  --push: skickat till GitHub
+2026-11-19 06:19:42  Hämtar med curl_cffi (Chrome-imitation) …
+2026-11-19 06:20:09    misslyckades: HTTP 403, 3016 tecken
+2026-11-19 06:20:09  Hämtar med requests …
+2026-11-19 06:20:27    misslyckades: HTTP 403, 3400 tecken
+2026-11-19 06:20:29  Hämtar med playwright chrome (synligt fönster) …
+2026-11-19 06:21:00    sidtitel: adidas
+2026-11-19 06:21:00    felsökning sparad i /Users/applekonto/adidas-lopskor/debug
+2026-11-19 06:21:00    misslyckades: inga produkter hittades på första sidan
+2026-11-19 06:21:15  Hämtar med playwright chromium (headless) …
+2026-11-19 06:21:46    sidtitel: adidas
+2026-11-19 06:21:46    felsökning sparad i /Users/applekonto/adidas-lopskor/debug
+2026-11-19 06:21:46    misslyckades: inga produkter hittades på första sidan
+2026-11-19 06:21:48  Hämtar med playwright chromium (synligt fönster) …
+2026-11-19 06:22:12    misslyckades: Mouse.wheel: Target page, context or browser has been closed
+2026-11-19 06:22:12  Hämtningen misslyckades: curl_cffi: HTTP 403, 3016 tecken | requests: HTTP 403, 3400 tecken | playwright-chrome: inga produkter hittades på första sidan | playwright-headless: inga produkter hittades på första sidan | playwright-synlig: Mouse.wheel: Target page, context or browser has been closed
+2026-11-19 06:22:12  Sidan sparad: /Users/applekonto/adidas-lopskor/adidas_lopskor/index.html

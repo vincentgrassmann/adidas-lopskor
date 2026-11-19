@@ -1,0 +1,20 @@
+2026-11-19 07:00:00  Hämtar med curl_cffi (Chrome-imitation) …
+2026-11-19 07:00:27    misslyckades: HTTP 403, 3016 tecken
+/Users/applekonto/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+2026-11-19 07:00:27  Hämtar med requests …
+2026-11-19 07:00:46    misslyckades: HTTP 403, 3400 tecken
+2026-11-19 07:00:49  Hämtar med playwright chrome (synligt fönster) …
+2026-11-19 07:01:20    sidtitel: adidas
+2026-11-19 07:01:20    felsökning sparad i /Users/applekonto/adidas-lopskor/debug
+2026-11-19 07:01:20    misslyckades: inga produkter hittades på första sidan
+2026-11-19 07:01:35  Hämtar med playwright chromium (headless) …
+2026-11-19 07:02:06    sidtitel: adidas
+2026-11-19 07:02:07    felsökning sparad i /Users/applekonto/adidas-lopskor/debug
+2026-11-19 07:02:07    misslyckades: inga produkter hittades på första sidan
+2026-11-19 07:02:09  Hämtar med playwright chromium (synligt fönster) …
+2026-11-19 07:02:41    sidtitel: adidas
+2026-11-19 07:02:41    felsökning sparad i /Users/applekonto/adidas-lopskor/debug
+2026-11-19 07:02:41    misslyckades: inga produkter hittades på första sidan
+2026-11-19 07:02:41  Hämtningen misslyckades: curl_cffi: HTTP 403, 3016 tecken | requests: HTTP 403, 3400 tecken | playwright-chrome: inga produkter hittades på första sidan | playwright-headless: inga produkter hittades på första sidan | playwright-synlig: inga produkter hittades på första sidan
+2026-11-19 07:02:41  Sidan sparad: /Users/applekonto/adidas-lopskor/adidas_lopskor/index.html

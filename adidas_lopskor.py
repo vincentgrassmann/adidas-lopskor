@@ -164,19 +164,41 @@ class PlaywrightFetcher:
         self.name = ("playwright " + (channel or "chromium") + " ("
                      + ("headless" if headless else "synligt fönster") + ")")
         self.pw = sync_playwright().start()
+        stealth = {"args": ["--disable-blink-features=AutomationControlled"],
+                   "ignore_default_args": ["--enable-automation"]}
         try:
-            self.browser = self.pw.chromium.launch(headless=headless, channel=channel) if channel \
-                else self.pw.chromium.launch(headless=headless)
+            self.browser = self.pw.chromium.launch(headless=headless, channel=channel, **stealth) if channel \
+                else self.pw.chromium.launch(headless=headless, **stealth)
         except Exception:
             self.pw.stop()
             raise
         self.ctx = self.browser.new_context(locale="sv-SE", user_agent=HEADERS["User-Agent"],
                                             viewport={"width": 1400, "height": 1000})
+        self.ctx.add_init_script("Object.defineProperty(navigator,'webdriver',{get:()=>undefined})")
         self.page = self.ctx.new_page()
+
+    def accept_cookies(self):
+        for sel in ("#glass-gdpr-default-consent-accept-button", "#onetrust-accept-btn-handler",
+                    "button:has-text('Acceptera')", "button:has-text('Godkänn')",
+                    "button:has-text('Accept')"):
+            try:
+                b = self.page.locator(sel).first
+                if b.is_visible(timeout=500):
+                    b.click(timeout=2000)
+                    self.page.wait_for_timeout(1000)
+                    return
+            except Exception:
+                pass
 
     def get(self, url):
         self.page.goto(url, wait_until="domcontentloaded", timeout=60000)
         self.page.wait_for_timeout(2500)
+        self.accept_cookies()
+        try:                                      # vänta tills produktkorten finns (max 25 s)
+            self.page.wait_for_function(
+                "document.querySelectorAll('img[src*=\"assets.adidas.com\"]').length > 10", timeout=25000)
+        except Exception:
+            pass
         for _ in range(8):                       # scrolla så att alla kort renderas
             self.page.mouse.wheel(0, 2500)
             self.page.wait_for_timeout(400)
@@ -262,15 +284,35 @@ def parse(page_html):
     return out, total_pages
 
 
+DEBUG = HERE / "debug"
+
+
+def save_debug(fetcher, page_html):
+    """Sparar sidan (och skärmdump i Playwright) när inga skor hittas, i mappen debug/."""
+    try:
+        DEBUG.mkdir(parents=True, exist_ok=True)
+        tag = re.sub(r"[^a-z0-9]+", "_", fetcher.name.lower()).strip("_")
+        (DEBUG / f"{tag}.html").write_text(page_html or "", encoding="utf-8")
+        title = re.search(r"<title[^>]*>(.*?)</title>", page_html or "", re.I | re.S)
+        log(f"  sidtitel: {html.unescape(title.group(1)).strip()[:120] if title else '(ingen)'}")
+        if hasattr(fetcher, "page"):
+            fetcher.page.screenshot(path=str(DEBUG / f"{tag}.png"), full_page=False)
+        log(f"  felsökning sparad i {DEBUG}")
+    except Exception as e:
+        log(f"  kunde inte spara felsökning: {e}")
+
+
 def crawl(fetcher):
     products, max_pages = {}, MAX_PAGES
     for i in range(MAX_PAGES):
         if i >= max_pages:
             break
         url = BASE + LIST_PATH + (f"?start={i * PAGE_SIZE}" if i else "")
-        found, total_pages = parse(fetcher.get(url))
+        page_html = fetcher.get(url)
+        found, total_pages = parse(page_html)
         if i == 0:
             if not found:
+                save_debug(fetcher, page_html)
                 raise Blocked("inga produkter hittades på första sidan")
             if total_pages:
                 max_pages = min(MAX_PAGES, total_pages)
@@ -302,8 +344,9 @@ def fetch_all():
         except ImportError as e:
             errors.append(f"{label}: modul saknas ({e.name})")
         except Exception as e:
-            errors.append(f"{label}: {e}")
-            log(f"  misslyckades: {e}")
+            short = (str(e).strip().splitlines() or [type(e).__name__])[0][:200]
+            errors.append(f"{label}: {short}")
+            log(f"  misslyckades: {short}")
         finally:
             if fetcher:
                 fetcher.close()

@@ -17,3 +17,16 @@
 2026-11-19 06:07:30    misslyckades: HTTP 403, 3400 tecken
 2026-11-19 06:07:30  Hämtningen misslyckades: curl_cffi: HTTP 403, 3016 tecken | requests: HTTP 403, 3400 tecken | playwright-chrome: modul saknas (playwright) | playwright-headless: modul saknas (playwright) | playwright-synlig: modul saknas (playwright)
 2026-11-19 06:07:30  Sidan sparad: /Users/applekonto/adidas-lopskor/adidas_lopskor/index.html
+2026-11-19 06:07:32  --push: skickat till GitHub
+2026-11-19 06:09:33  Hämtar med curl_cffi (Chrome-imitation) …
+2026-11-19 06:10:00    misslyckades: HTTP 403, 3016 tecken
+2026-11-19 06:10:00  Hämtar med requests …
+2026-11-19 06:10:18    misslyckades: HTTP 403, 3400 tecken
+2026-11-19 06:10:21  Hämtar med playwright chrome (synligt fönster) …
+2026-11-19 06:10:27    misslyckades: inga produkter hittades på första sidan
+2026-11-19 06:10:28  Hämtar med playwright chromium (headless) …
+2026-11-19 06:10:34    misslyckades: inga produkter hittades på första sidan
+2026-11-19 06:10:38  Hämtar med playwright chromium (synligt fönster) …
+2026-11-19 06:10:44    misslyckades: inga produkter hittades på första sidan
+2026-11-19 06:10:44  Hämtningen misslyckades: curl_cffi: HTTP 403, 3016 tecken | requests: HTTP 403, 3400 tecken | playwright-chrome: inga produkter hittades på första sidan | playwright-headless: inga produkter hittades på första sidan | playwright-synlig: inga produkter hittades på första sidan
+2026-11-19 06:10:44  Sidan sparad: /Users/applekonto/adidas-lopskor/adidas_lopskor/index.html

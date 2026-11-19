@@ -2,6 +2,6 @@
  "items": {},
  "runs": [],
  "last_run": null,
- "error": "curl_cffi: HTTP 403, 3016 tecken | requests: HTTP 403, 3400 tecken | playwright-chrome: modul saknas (playwright) | playwright-headless: modul saknas (playwright) | playwright-synlig: modul saknas (playwright)",
- "error_time": "2026-11-19 06:06"
+ "error": "curl_cffi: HTTP 403, 3016 tecken | requests: HTTP 403, 3400 tecken | playwright-chrome: inga produkter hittades på första sidan | playwright-headless: inga produkter hittades på första sidan | playwright-synlig: inga produkter hittades på första sidan",
+ "error_time": "2026-11-19 06:09"
 }
